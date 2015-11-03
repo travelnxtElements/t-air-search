@@ -4,7 +4,11 @@
 <dom-module id="t-search-initiator">
 
 <template>
-   <iron-ajax id="searchCall" method="POST" url="[[url]]" verbose content-type="application/json" on-response="_callback"></iron-ajax>
+   <iron-ajax id="searchCall" method="POST" url="[[url]]" verbose 
+    headers='{"accept": "application/json"}'
+    content-type="application/json"
+    handle-as="json"
+    on-response="_callback"></iron-ajax>
 </template>
 
 </dom-module>

@@ -1,6 +1,5 @@
 <link rel='import' href='../polymer/polymer.html'>
 <link rel='import' href='../t-form/t-form.html'>
-
 <!--
 This component is a form that allows a user to search for flights.
 It exposes certain prperties which allow control over different aspects
@@ -19,38 +18,38 @@ __For component consumers__: Properties like `searchType` allow the consumer
 of this component to control the behaviour of this component.
 
 -->
-
 <dom-module id='t-air-search'>
     <template>
         <style>
-        :host{
+        :host {
             display: block;
             padding: 0 10px 5px;
         }
+        
         :host t-form {
             padding: 0;
             margin: 0;
             max-width: 100%;
         }
-
-        t-radio-group ::content iron-selector {
+        
+        t-radio-group::content iron-selector {
             width: 100%;
         }
-
-        t-radio-group ::content t-radio-button {
+        
+        t-radio-group::content t-radio-button {
             -ms-flex: 1;
             -webkit-flex: 1;
             flex: 1;
             text-align: center;
         }
-
+        
         t-autosuggest,
         t-calendar,
-        t-stepper{
-            outline:0;
+        t-stepper {
+            outline: 0;
         }
         </style>
-        <t-form show-loader error-block  class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top">
+        <t-form show-loader error-block class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top">
             <div class="form flex ">
                 <div class="horizontal flex layout " style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
@@ -60,35 +59,35 @@ of this component to control the behaviour of this component.
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-value="{{DepartureAirport}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" error-message="Please enter city"></t-autosuggest>
+                        <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-value="{{DepartureAirport}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" error-message="You missed this."></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-value="{{ArrivalAirport}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" error-message="Please enter city"></t-autosuggest>
+                        <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-value="{{ArrivalAirport}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-calendar id="departureDate" required selected-date="{{DepartureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="Please select a date"></t-calendar>
+                        <t-calendar id="departureDate" required selected-date="{{DepartureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                     <div class="flex fieldset " data-category="formComponents" hidden$="{{_isRoundTrip}}">
-                        <t-calendar id="arrivalDate" required$="{{!_isRoundTrip}}" selected-date="{{ArrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="Please select a date"></t-calendar>
+                        <t-calendar id="arrivalDate" required$="{{!_isRoundTrip}}" selected-date="{{ArrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                 </div>
                 <div class="horizontal flex layout " style="position: relative;">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" count="{{adult}}" name="adult" on-count-change="changeMaxCount" id="adult"></t-stepper>
+                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-change="changeMaxCount" id="adult"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(>12 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-change="changeMaxCount"></t-stepper>
+                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-change="changeMaxCount"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxInfants}}" secondary-label="(>2 years)" plural-label="Infants" singular-label="Infant" count="{{infant}}" name="infant" id="infant"></t-stepper>
+                        <t-stepper min="0" max$="{{_maxInfants}}" secondary-label="(<2 years, in lap)" plural-label="Infants" singular-label="Infant" count="{{infant}}" name="infant" id="infant"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
@@ -168,7 +167,7 @@ Polymer({
          */
         _maxChildren: {
             type: Number,
-            notify:true,
+            notify: true,
             value: 6
         },
 
@@ -177,7 +176,7 @@ Polymer({
          */
         _maxInfants: {
             type: Number,
-            notify:true,
+            notify: true,
             value: 1
         },
 
@@ -260,7 +259,7 @@ Polymer({
     attached: function() {
         var component = this;
         this.async(function() {
-      // access sibling or parent elements here
+            // access sibling or parent elements here
             var startDate = new Date();
             startDate.setDate(startDate.getDate() + 3);
             this.$.departureDate.picker.set('min', startDate);
@@ -270,17 +269,29 @@ Polymer({
         })
     },
 
-    _tripTypeChanged: function(tripType) {
-        if (this.itineraryType == 'RoundTrip')
-            return false;
+    _tripTypeChanged: function (tripType) {
+        if (this.itineraryType !== undefined) {
+            if (this.itineraryType === 'RoundTrip') {
+                this._travelDateChanged();
+                return false;
+            }
+            else {
+                if(this.$.departureDate.picker !== undefined)
+                    this.$.departureDate.picker.set('max', false);
+            }
+        }
         return true;
     },
 
     _travelDateChanged: function() {
+        if (this.itineraryType !== undefined) {
+            if (this.itineraryType === 'RoundTrip') {
+                if (this.DepartureDate != '') {
+                    this.$.arrivalDate.picker.set('min', new Date(this.DepartureDate));
+                }
+            } else {
 
-        if (this.itineraryType == 'RoundTrip') {
-            if (this.DepartureDate != '') {
-                this.$.arrivalDate.picker.set('min', new Date(this.DepartureDate));
+                this.$.departureDate.picker.set('max', false);
             }
         }
     },
@@ -326,7 +337,7 @@ Polymer({
         }
     },
 
-    changeMaxCount: function(){
+    changeMaxCount: function() {
         this.$.adult.max = 9 - this.$.child.count;
         this.$.child.max = 9 - this.$.adult.count;
         this.$.infant.max = this.$.adult.count;
