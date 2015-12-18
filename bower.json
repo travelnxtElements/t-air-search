@@ -24,13 +24,26 @@
     "test",
     "tests"
   ],
-  "dependencies": { 
+  "dependencies": {
     "iron-ajax": "PolymerElements/iron-ajax#1.0.0",
-    "t-form": "atomelements/t-form#0.0.0", 
+    "t-form": "atomelements/t-form#master",
     "polymer": "Polymer/polymer#^1.0.0"
   },
   "devDependencies": {
     "webcomponentsjs": "~0.7.14",
     "iron-component-page": "PolymerElements/iron-component-page#~1.0.6"
+  },
+  "resolutions": {
+    "t-autosuggest": "master",
+    "t-button": "master",
+    "t-calendar": "master",
+    "t-checkbox-group": "master",
+    "t-colorpicker": "master",
+    "t-dropdown": "master",
+    "t-input": "master",
+    "t-notify": "master",
+    "t-radio-group": "master",
+    "t-slider": "master",
+    "t-stepper": "master"
   }
 }
