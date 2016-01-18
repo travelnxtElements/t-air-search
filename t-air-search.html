@@ -59,12 +59,12 @@ of this component to control the behaviour of this component.
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-value="{{DepartureAirport}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" error-message="You missed this."></t-autosuggest>
+                        <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-value="{{DepartureAirport}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this."></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-value="{{ArrivalAirport}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
+                        <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-value="{{ArrivalAirport}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped">
@@ -115,8 +115,10 @@ Polymer({
          * The location of arrival.
          * Must be a value picked from suggested locations?.
          */
-        ArrivalAirport: String,
-
+        ArrivalAirport: {
+            type:String,
+            observer:'_validateDestinations'
+        },
         /**
          * The date of departure.
          */
@@ -266,7 +268,7 @@ Polymer({
         });
         this.addEventListener('on-form-submit', function(event) {
             component.search(event.detail);
-        })
+        });
     },
 
     _tripTypeChanged: function (tripType) {
