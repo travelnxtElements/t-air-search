@@ -77,12 +77,12 @@ of this component to control the behaviour of this component.
                 </div>
                 <div class="horizontal flex layout " style="position: relative;">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-change="changeMaxCount" id="adult"></t-stepper>
+                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-change="_changeMaxCount" id="adult"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-change="changeMaxCount"></t-stepper>
+                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-change="_changeMaxCount"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
@@ -141,7 +141,7 @@ Polymer({
         },
 
         /**
-         * The number of adults travelling
+         * The value of adults selected.
          */
         adult: {
             type: Number,
@@ -149,7 +149,7 @@ Polymer({
         },
 
         /**
-         * The number of children travelling
+         * The value of children selected.
          */
         child: {
             type: Number,
@@ -157,7 +157,7 @@ Polymer({
         },
 
         /**
-         * The number of infants travelling
+         * The value of infants selected.
          */
         infant: {
             type: Number,
@@ -241,7 +241,7 @@ Polymer({
         },
 
         /**
-         * What is this??
+         * The query parameter for autosuggest to work. This is token to pass with the request for * autosuggest.
          */
         queryParams: {
             type: String,
@@ -339,12 +339,16 @@ Polymer({
         }
     },
 
-    changeMaxCount: function() {
+    _changeMaxCount: function() {
         this.$.adult.max = 9 - this.$.child.count;
         this.$.child.max = 9 - this.$.adult.count;
         this.$.infant.max = this.$.adult.count;
     },
 
+
+    /**
+     * The method to fire the search function
+     */
     search: function(searchParams) {
         if (this.searchType == 'url') {
             var win = window.open(this._getDeeplinkUrl(), '_blank');
