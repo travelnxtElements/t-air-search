@@ -75,7 +75,7 @@ of this component to control the behaviour of this component.
                         <t-calendar id="arrivalDate" required$="{{!_isRoundTrip}}" selected-date="{{ArrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                 </div>
-                <div class="horizontal flex layout " style="position: relative;">
+                <div class="horizontal flex layout " style="position: relative;margin-top: 5px;">
                     <div class="fieldset flex" data-category="formComponents">
                         <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-changed="changeMaxCount" id="adult"></t-stepper>
                     </div>
