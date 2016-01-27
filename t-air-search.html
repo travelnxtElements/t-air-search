@@ -77,12 +77,12 @@ of this component to control the behaviour of this component.
                 </div>
                 <div class="horizontal flex layout " style="position: relative;">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-change="_changeMaxCount" id="adult"></t-stepper>
+                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-changed="changeMaxCount" id="adult"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-change="_changeMaxCount"></t-stepper>
+                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-changed="changeMaxCount"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
@@ -339,7 +339,7 @@ Polymer({
         }
     },
 
-    _changeMaxCount: function() {
+    changeMaxCount: function() {
         this.$.adult.max = 9 - this.$.child.count;
         this.$.child.max = 9 - this.$.adult.count;
         this.$.infant.max = this.$.adult.count;
