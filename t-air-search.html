@@ -21,33 +21,33 @@ of this component to control the behaviour of this component.
 <dom-module id='t-air-search'>
     <template>
         <style>
-            :host {
-                display: block;
-                padding: 0 10px 5px;
-            }
-            
-            t-form {
-                padding: 0;
-                margin: 0;
-                max-width: 100%;
-            }
-            
-            [pill-button] ::content iron-selector {
-                width: 100%;
-                text-align: center;
-            }
-            
-            ::content t-radio-button {
-                -ms-flex: 1;
-                -webkit-flex: 1;
-                flex: 1;
-            }
-            
-            t-autosuggest,
-            t-calendar,
-            t-stepper {
-                outline: 0;
-            }
+        :host {
+            display: block;
+            padding: 0 10px 5px;
+        }
+        
+        t-form {
+            padding: 0;
+            margin: 0;
+            max-width: 100%;
+        }
+        
+        [pill-button]::content iron-selector {
+            width: 100%;
+            text-align: center;
+        }
+        
+        ::content t-radio-button {
+            -ms-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+        }
+        
+        t-autosuggest,
+        t-calendar,
+        t-stepper {
+            outline: 0;
+        }
         </style>
         <t-form show-loader error-block class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top">
             <div class="form flex ">
@@ -116,8 +116,8 @@ Polymer({
          * Must be a value picked from suggested locations?.
          */
         ArrivalAirport: {
-            type:String,
-            observer:'_validateDestinations'
+            type: String,
+            observer: '_validateDestinations'
         },
         /**
          * The date of departure.
@@ -271,14 +271,13 @@ Polymer({
         });
     },
 
-    _tripTypeChanged: function (tripType) {
+    _tripTypeChanged: function(tripType) {
         if (this.itineraryType !== undefined) {
             if (this.itineraryType === 'RoundTrip') {
                 this._travelDateChanged();
                 return false;
-            }
-            else {
-                if(this.$.departureDate.picker !== undefined)
+            } else {
+                if (this.$.departureDate.picker !== undefined)
                     this.$.departureDate.picker.set('max', false);
             }
         }
@@ -361,12 +360,21 @@ Polymer({
         }
     },
 
-    onSearchSuccess:function (event) {
-        
+    /**
+     * Event listener for successful t-air-search-api call
+     * Handler for t-air-search-api-success event
+     * 
+     */
+    onSearchSuccess: function(event) {
+        //not used
     },
 
-    onSearchFailure:function (event) {
-        
+    /**
+     * Event listener for failed t-air-search-api call
+     * Handler for t-air-search-api-error event
+     */
+    onSearchFailure: function(event) {
+        //not used  
     }
 })
 </script>

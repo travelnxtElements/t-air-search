@@ -2,6 +2,24 @@ _
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 <link rel="import" href="../t-shared-lib/t-provider-behavior.html">
+<!--
+    `t-air-search-api is a air search initiator API used to generate the search id`
+    
+    The searcgh can be called in two ways -
+        1. using search event handler 'onSearch' (search criteria should be passed along with event)
+        2. Using API method search (search criteria should be set in component properties before calling this method)
+
+    following events are fired by this component
+        1. 't-air-search-api-success' - fired if the ajax call is successful
+        2. 't-air-search-api-error' - fired if the ajax call is failure
+
+Example:
+        without event handlers
+        <t-air-search-api></t-air-search-api>
+
+        with event handlers
+        <t-air-search-api id="searchApi" loading={{loading}} api-base-url="http://qa-mystiquecode.tavisca.com/" api-relative-url="api/flight/search" auth-token="{{tokenResponse.authenticationToken}}"></t-air-search-api>-->
+        
 <dom-module id="t-air-search-api">
     <template>
         <iron-ajax id="ajaxCall" method="POST" content-type="application/json" handle-as="json" verbose>
@@ -16,10 +34,24 @@ Polymer({
 
     properties: {
 
+        /**
+         * Passenger list
+         * List item format 
+            {
+                quantity: 1,
+                type: "Adult",
+                ages: []
+            }
+        * passible values for type - [Adult, Child, Infant, Senior]
+        */
         passengers: {
             type: Array
         },
 
+        /**
+         * adult passenger type
+         * Gets added in passengers list before search call 
+         */
         adult: {
             type: Object,
             value: function() {
@@ -31,6 +63,10 @@ Polymer({
             }
         },
 
+        /**
+         * child passenger type
+         * Gets added in passengers list before search call 
+         */
         child: {
             type: Object,
             value: function() {
@@ -42,6 +78,10 @@ Polymer({
             }
         },
 
+        /**
+         * senior passenger type
+         * Gets added in passengers list before search call 
+         */
         senior: {
             type: Object,
             value: function() {
@@ -53,6 +93,10 @@ Polymer({
             }
         },
 
+        /**
+         * infant passenger type
+         * Gets added in passengers list before search call 
+         */
         infant: {
             type: Object,
             value: function() {
@@ -64,13 +108,21 @@ Polymer({
             }
         },
 
+        /**
+         * 
+         * Contains information about the flight legs.
+         */
         legs: {
             type: Array,
-            value:function () {
+            value: function() {
                 return [];
             }
         },
 
+        /**
+         * air itinerary leg
+         * is set with onward journey details
+         */
         airItineraryLeg: {
             type: Object,
             value: function() {
@@ -86,13 +138,22 @@ Polymer({
             }
         },
 
+        /**
+         * Flag for round trip
+         * additional return journey air itinerary leg is added before search call if it is set to true
+         */
         isRoundTrip: Boolean,
+
 
         productType: {
             type: String,
             value: 'Flight'
+            readonly: true
         },
-
+        /**
+         * Contains the preferences for the flight search.
+         * The API returns the flights that match all the preferences specified
+         */
         preferences: {
             type: Object,
             value: function() {
@@ -109,7 +170,11 @@ Polymer({
         'ajaxCall.error': '_errorCallback'
     },
 
-    search:function () {
+    /**
+     * This method searches for the flights matching search criteria
+     * The search criteria should be pre populated in component properties
+     */
+    search: function() {
         //validate API meta before making a call
         if (this._validateApiMeta()) {
             this.$.ajaxCall.url = this._getUrl();
@@ -117,13 +182,18 @@ Polymer({
             this._setLoading(true);
             this.$.ajaxCall.generateRequest();
         }
-        
+
     },
 
-    onSearch:function (e) {
+    /**
+     * This method is an event handler of event fired by view component
+     * The search criteria should be sent in event details
+     * Sets the component properties and calls search method internally
+     */
+    onSearch: function(e) {
         var searchQuery = event.detail;
         this._populateSearchRequest(searchQuery);
-        this.search();        
+        this.search();
     },
 
     /*
