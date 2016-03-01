@@ -19,7 +19,6 @@ Example:
 
         with event handlers
         <t-air-search-api id="searchApi" loading={{loading}} api-base-url="http://qa-mystiquecode.tavisca.com/" api-relative-url="api/flight/search" auth-token="{{tokenResponse.authenticationToken}}"></t-air-search-api>-->
-        
 <dom-module id="t-air-search-api">
     <template>
         <iron-ajax id="ajaxCall" method="POST" content-type="application/json" handle-as="json" verbose>
@@ -147,7 +146,7 @@ Polymer({
 
         productType: {
             type: String,
-            value: 'Flight'
+            value: 'Flight',
             readonly: true
         },
         /**
