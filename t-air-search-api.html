@@ -1,0 +1,188 @@
+_
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../t-shared-lib/t-provider-behavior.html">
+<dom-module id="t-air-search-api">
+    <template>
+        <iron-ajax id="ajaxCall" method="POST" content-type="application/json" handle-as="json" verbose>
+        </iron-ajax>
+    </template>
+</dom-module>
+<script>
+Polymer({
+    is: "t-air-search-api",
+
+    behaviors: [TravelNxt.Behaviors.ProviderBehavior],
+
+    properties: {
+
+        passengers: {
+            type: Array
+        },
+
+        adult: {
+            type: Object,
+            value: function() {
+                return {
+                    quantity: 1,
+                    type: "Adult",
+                    ages: []
+                }
+            }
+        },
+
+        child: {
+            type: Object,
+            value: function() {
+                return {
+                    quantity: 0,
+                    type: "Child",
+                    ages: []
+                }
+            }
+        },
+
+        senior: {
+            type: Object,
+            value: function() {
+                return {
+                    quantity: 0,
+                    type: "Senior",
+                    ages: []
+                }
+            }
+        },
+
+        infant: {
+            type: Object,
+            value: function() {
+                return {
+                    quantity: 0,
+                    type: "Infant",
+                    ages: []
+                }
+            }
+        },
+
+        legs: {
+            type: Array,
+            value:function () {
+                return [];
+            }
+        },
+
+        airItineraryLeg: {
+            type: Object,
+            value: function() {
+                return {
+                    departureLocation: '',
+                    includeNearByAirportsForDeparture: true,
+                    arrivalLocation: '',
+                    includeNearByAirportsForArrival: true,
+                    travelDate: {
+                        "date": ''
+                    }
+                }
+            }
+        },
+
+        isRoundTrip: Boolean,
+
+        productType: {
+            type: String,
+            value: 'Flight'
+        },
+
+        preferences: {
+            type: Object,
+            value: function() {
+                return {
+                    nonStopOnly: false,
+                    cabinType: "Economy"
+                }
+            }
+        }
+    },
+
+    listeners: {
+        'ajaxCall.response': '_successCallback',
+        'ajaxCall.error': '_errorCallback'
+    },
+
+    search:function () {
+        //validate API meta before making a call
+        if (this._validateApiMeta()) {
+            this.$.ajaxCall.url = this._getUrl();
+            this.$.ajaxCall.body = JSON.stringify(this._generateSearchRequest());
+            this._setLoading(true);
+            this.$.ajaxCall.generateRequest();
+        }
+        
+    },
+
+    onSearch:function (e) {
+        var searchQuery = event.detail;
+        this._populateSearchRequest(searchQuery);
+        this.search();        
+    },
+
+    /*
+    Callback for authenticate iron ajax success evnt
+     */
+    _successCallback: function(event) {
+        this._successHandler(event);
+    },
+
+    /*
+    Callback for authenticate iron ajax success evnt
+     */
+    _errorCallback: function(event) {
+        this._errorHandler(event);
+    },
+
+    _populateSearchRequest: function(searchQuery) {
+
+        //passengers
+        this.adult.quantity = searchQuery.adult;
+        this.child.quantity = searchQuery.child;
+        this.senior.quantity = searchQuery.senior;
+        this.infant.quantity = searchQuery.infant;
+        this.passengers = [this.adult, this.child, this.senior, this.infant];
+
+        //preferences
+        this.preferences.cabinType = searchQuery.cabinType;
+
+        //air itinerary leg
+        this.airItineraryLeg.departureLocation = searchQuery.DepartureAirport;
+        this.airItineraryLeg.includeNearByAirportsForDeparture = true;
+        this.airItineraryLeg.arrivalLocation = searchQuery.ArrivalAirport;
+        this.airItineraryLeg.includeNearByAirportsForArrival = true;
+        this.airItineraryLeg.travelDate.date = searchQuery.departureDate;
+
+        this.legs.push(this.airItineraryLeg);
+
+        if (this.isRoundTrip = searchQuery.itineraryType !== 'RoundTrip')
+            return;
+
+        //round trip
+        this.legs.push({
+            departureLocation: searchQuery.ArrivalAirport,
+            includeNearByAirportsForDeparture: true,
+            arrivalLocation: searchQuery.DepartureAirport,
+            includeNearByAirportsForArrival: true,
+            travelDate: {
+                date: searchQuery.arrivalDate
+            }
+        });
+    },
+
+    _generateSearchRequest: function() {
+        return {
+            Passengers: this.passengers,
+            legs: this.legs,
+            productType: this.productType,
+            preferences: this.preferences
+        };
+    }
+});
+</script>
