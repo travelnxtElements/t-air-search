@@ -1,17 +1,38 @@
 <html>
 
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1"> 
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-  
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="../t-air-search.html">
+    <link rel="import" href="../t-air-search-api.html">
+    <link rel="import" href="../../t-mystique-auth/t-mystique-auth.html">
+    <link rel="import" href="../../t-shared-components/theme.html">
 </head>
 
 <body>
-    <t-air-search></t-air-search>
+    <template is="dom-bind" id="domBindTemplate">
+
+        <t-air-search id="searchView" suggestion-url="http://qa-mystiquecode.tavisca.com/api/Content/autosuggest/" query-params="token={{tokenResponse.authenticationToken}}"></t-air-search>
+
+        <t-air-search-api id="searchApi" loading={{loading}} api-base-url="http://qa-mystiquecode.tavisca.com/" api-relative-url="api/flight/search" auth-token="{{tokenResponse.authenticationToken}}"></t-air-search-api>
+        <t-mystique-auth name="nxtb2bsite" url="http://qa-mystiquecode.tavisca.com/api/authentication/authenticate/context" token-response="{{tokenResponse}}" auto></t-mystique-auth>
+        <template is="dom-if" if="{{loading}}">
+            <div>API in-progress, wait..</div>
+        </template>
+    </template>
 </body>
+<script>
+window.addEventListener('WebComponentsReady', function(e) {
+    var template = document.getElementById('domBindTemplate');
+
+    template.$.searchView.addEventListener('t-air-search-flights', template.$.searchApi.onSearch.bind(template.$.searchApi));
+    template.$.searchApi.addEventListener('t-air-search-api-success', template.$.searchView.onSearchSuccess.bind(template.$.searchView));
+    template.$.searchApi.addEventListener('t-air-search-api-error', template.$.searchView.onSearchFailure.bind(template.$.searchView));
+
+});
+</script>
 
 </html>

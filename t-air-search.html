@@ -21,33 +21,33 @@ of this component to control the behaviour of this component.
 <dom-module id='t-air-search'>
     <template>
         <style>
-        :host {
-            display: block;
-            padding: 0 10px 5px;
-        }
-        
-        t-form {
-            padding: 0;
-            margin: 0;
-            max-width: 100%;
-        }
-        
-        [pill-button] ::content iron-selector {
-            width: 100%;
-            text-align: center;
-        }
-        
-        ::content t-radio-button {
-            -ms-flex: 1;
-            -webkit-flex: 1;
-            flex: 1;
-        }
-        
-        t-autosuggest,
-        t-calendar,
-        t-stepper {
-            outline: 0;
-        }
+            :host {
+                display: block;
+                padding: 0 10px 5px;
+            }
+            
+            t-form {
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            [pill-button] ::content iron-selector {
+                width: 100%;
+                text-align: center;
+            }
+            
+            ::content t-radio-button {
+                -ms-flex: 1;
+                -webkit-flex: 1;
+                flex: 1;
+            }
+            
+            t-autosuggest,
+            t-calendar,
+            t-stepper {
+                outline: 0;
+            }
         </style>
         <t-form show-loader error-block class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top">
             <div class="form flex ">
@@ -357,8 +357,16 @@ Polymer({
             var btnSubmit = this.querySelector("#submit");
             btnSubmit.disabled = true;
             btnSubmit.label = "Searching Flights...";
-            this.fire('on-search', searchParams);
+            this.fire('t-air-search-flights', searchParams);
         }
+    },
+
+    onSearchSuccess:function (event) {
+        
+    },
+
+    onSearchFailure:function (event) {
+        
     }
 })
 </script>
