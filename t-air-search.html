@@ -1,93 +1,90 @@
 <link rel='import' href='../polymer/polymer.html'>
 <link rel='import' href='../t-form/t-form.html'>
 <!--
-This component is a form that allows a user to search for flights.
-It exposes certain prperties which allow control over different aspects
-of searching.
+Use t-air-sarch UI component to capture and validate flight search criteria. 
 
-There are fundamentally three types of properties that form the public
-api of this component.
+It supports both 'OneWay' and 'RoundTrip' searches with cabin type preference. Upon search button click, it fires an event using 'eventName' on 'body' tag with all user input data and also registers two callback handlers for api component's success and error events like 'eventName'+ '-api-success' and 'eventName'+ '-api-error' on same 'body' tag.    
+    
+API component's in-progress and error states are not handled in this view component, so handle explicitly outside of it.
 
-__User input__: Properties like `DepartureAirport`, `adult` etc. reflect the user input
-necessary for searching
+<b>Example with API component</b>
 
-__Validation__: Properties like `maxChildren` reflect the validation limits imposed
-on user input
+    <t-air-search id="searchView" suggestion-url="{{API Full Url}}" query-params="token={{Auth Token}}" event-name="t-air-search"></t-air-search>
 
-__For component consumers__: Properties like `searchType` allow the consumer
-of this component to control the behaviour of this component.
-
+    <t-base-api id="searchApi" loading={{loading}} api-base-url="{{API Base Url}}" api-relative-url="{{API Rel Url}}" event-name="t-air-search" translator-type="Eva.AirSearchTranslator"></t-base-api>
 -->
+
+
 <dom-module id='t-air-search'>
     <template>
         <style>
-        :host {
-            display: block;
-            padding: 0 10px 5px;
-        }
-        
-        t-form {
-            padding: 0;
-            margin: 0;
-            max-width: 100%;
-        }
-        
-        [pill-button]::content iron-selector {
-            width: 100%;
-            text-align: center;
-        }
-        
-        ::content t-radio-button {
-            -ms-flex: 1;
-            -webkit-flex: 1;
-            flex: 1;
-        }
-        
-        t-autosuggest,
-        t-calendar,
-        t-stepper {
-            outline: 0;
-        }
+            :host {
+                display: block;
+                padding: 0 10px 5px;
+            }
+            
+            t-form {
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            
+            [pill-button]::content iron-selector {
+                width: 100%;
+                text-align: center;
+            }
+            
+            ::content t-radio-button {
+                -ms-flex: 1;
+                -webkit-flex: 1;
+                flex: 1;
+            }
+            
+            t-autosuggest,
+            t-calendar,
+            t-stepper {
+                outline: 0;
+            }
         </style>
-        <t-form show-loader error-block class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top">
+        <t-form id="searchForm" show-loader error-block class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top" on-on-form-submit="_onSearch">
             <div class="form flex ">
-                <div class="horizontal flex layout " style="position: relative;">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-radio-group id="itineraryType" name="itineraryType" data='["RoundTrip","OneWay"]' pill-button selected-item="{{itineraryType}}">
+                <div class="horizontal flex layout" style="position: relative;">
+                    <div class="flex fieldset" data-category="formComponents">
+                        <t-radio-group id="tripType" name="tripType" data='["RoundTrip","OneWay"]' pill-button selected-item="{{tripType}}">
                         </t-radio-group>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-value="{{DepartureAirport}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this."></t-autosuggest>
+                        <t-autosuggest id="leg1origin" name="leg1origin" required selected-item="{{leg1origin}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this."></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-value="{{ArrivalAirport}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
+                        <t-autosuggest id="leg1destination" name="leg1destination" selected-item="{{leg1destination}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-calendar id="departureDate" required selected-date="{{DepartureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
+                        <t-calendar id="leg1date" required selected-date="{{leg1date}}" label="Departing" name="leg1date" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                     <div class="flex fieldset " data-category="formComponents" hidden$="{{_isRoundTrip}}">
-                        <t-calendar id="arrivalDate" required$="{{!_isRoundTrip}}" selected-date="{{ArrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
+                        <t-calendar id="leg2date" required$="{{!_isRoundTrip}}" selected-date="{{leg2date}}" label="Returning" name="leg2date" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                 </div>
                 <div class="horizontal flex layout " style="position: relative;margin-top: 5px;">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-changed="changeMaxCount" id="adult"></t-stepper>
+                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adultCount}}" name="adultCount" on-count-changed="_changeMaxCount" id="adultCount"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-changed="changeMaxCount"></t-stepper>
+                        <t-stepper min="0" max$="0" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{childCount}}" name="childCount" id="childCount" on-count-changed="_changeMaxCount"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxInfants}}" secondary-label="(<2 years, in lap)" plural-label="Infants" singular-label="Infant" count="{{infant}}" name="infant" id="infant"></t-stepper>
+                        <t-stepper min="0" max$="0" secondary-label="(<2 years, in lap)" plural-label="Infants" singular-label="Infant" count="{{infantCount}}" name="infantCount" id="infantCount"></t-stepper>
                     </div>
                 </div>
                 <div class="horizontal flex layout ">
@@ -103,84 +100,125 @@ of this component to control the behaviour of this component.
 <script>
 Polymer({
     is: 't-air-search',
+
+
+     /**
+     * Fired when user clicks on search button or 'search' API is called and criteria is valid.
+     * @event 'eventName'+ '-api-search'
+     */
+           
+
     properties: {
-
-        /**
-         * The location to search from.
-         * Must be a value picked from suggested locations?.
+        /*
+        Leg 1 origin location, should be t-autosuggest selected item ie autosuggest api response
          */
-        DepartureAirport: String,
+        leg1origin: {
+            type: Object,
+            notify: true,
+            'observer': '_setLeg2Destination'
+        },
 
-        /**
-         * The location of arrival.
-         * Must be a value picked from suggested locations?.
+        /*
+        Leg 1 destination location, should be t-autosuggest selected item ie autosuggest api response
          */
-        ArrivalAirport: {
+        leg1destination: {
+            type: Object,
+            notify: true,
+            'observer': '_setLeg2Origin'
+        },
+
+         /*
+        Leg 2 origin location, should be t-autosuggest selected item ie autosuggest api response
+        In case _Round Trip_ this will be set to 'leg1destination'
+         */
+        leg2origin: {
+            type: Object,
+            notify: true
+        },
+
+         /*
+        Leg 2 destination location, should be t-autosuggest selected item ie autosuggest api response
+        In case _Round Trip_ this will be set to 'leg1origin'
+         */
+        leg2destination: {
+            type: Object,
+            notify: true
+        },
+
+        /*
+        Leg 1 origin location start date
+         */        
+        leg1date: {
             type: String,
-            observer: '_validateDestinations'
+            notify: true,
+            observer: '_updateLeg2Date'
         },
-        /**
-         * The date of departure.
-         */
-        DepartureDate: {
+
+        /*
+        Leg 1 origin location start date
+         */        
+        leg2date: {
             type: String,
-            value: '',
             notify: true,
-            observer: '_travelDateChanged'
+            observer: '_updateLeg1Date'
         },
 
         /**
-         * The date of returning back to the departure location
-         * __if__ the type of trip is _Round Trip_
+         * Number of adult passengers.
          */
-        ArrivalDate: {
+        adultCount: {
+            type: Number,
+            value: 1,
+            notify: true,
+        },
+
+        /**
+         * Number of child passengers.
+         */
+        childCount: {
+            type: Number,
+            value: 0,
+            notify: true,
+        },
+
+        /**
+         * Number of infant passengers.
+         */
+        infantCount: {
+            type: Number,
+            value: 0,
+            notify: true,
+        },
+
+        /*
+        Used to set leg1date datepicker min value on page load (current date + minStartDate)        
+         
+         */
+        minStartDate:{
+            type: Number,
+            value: 0,
+            notify: true
+        },
+
+        /**
+         * The type of trip, possible values are _Round Trip_ and _One Way_
+         */
+        tripType: {
             type: String,
-            value: '',
+            value: 'RoundTrip',
             notify: true,
-            observer: '_returnDateChanged'
+            observer: '_tripTypeChanged'
         },
 
         /**
-         * The value of adults selected.
+         * The type of cabin, possible values are Economy/Business/First
          */
-        adult: {
-            type: Number,
-            value: 1
+        cabinType: {
+            type: String,
+            value: "Economy"
         },
 
-        /**
-         * The value of children selected.
-         */
-        child: {
-            type: Number,
-            value: 0
-        },
 
-        /**
-         * The value of infants selected.
-         */
-        infant: {
-            type: Number,
-            value: 0
-        },
-
-        /**
-         * The maximum number of children allowed for travel
-         */
-        _maxChildren: {
-            type: Number,
-            notify: true,
-            value: 6
-        },
-
-        /**
-         * The maximum number of infants allowed for travel
-         */
-        _maxInfants: {
-            type: Number,
-            notify: true,
-            value: 1
-        },
 
         /**
          * The api url that returns suggestions (auto suggest) shown in
@@ -189,55 +227,24 @@ Polymer({
         suggestionUrl: String,
 
         /**
-         * The error message that will be shown to the user
-         */
-        error: {
-            type: String,
-            value: ''
-        },
-
-        /**
-         * The type of trip, possible values are _Round Trip_ and _One Way_
-         */
-        itineraryType: {
-            type: String,
-            value: 'RoundTrip',
-            reflectToAttribute: true,
-            notify: true,
-            observer: '_tripTypeChanged'
-        },
-
-        /**
          * Controls how the search happens, if the value of this is set to
          * 'event' then it raises a event which can be handled by the consumer
          * of this component to do search. In another case if the value is
          * set to `url` then search will be done by opening the deep link
          * url.
          */
-        searchType: {
-            type: String,
-            value: 'event',
+        isDeeplink: {
+            type: Boolean,
+            value: false,
             reflectToAttribute: true
-        },
+        },        
 
         /**
-         * Check if the type of trip is _Round Trip_
+         * Check if the trip type is _Round Trip_
          */
         _isRoundTrip: {
             type: Boolean,
-            computed: '_tripTypeChanged(itineraryType)'
-        },
-
-        /**
-         * The url that will used for searching if `searchType` is set to `url`.
-         * The initial * value should be set to the search api url, this initial
-         * value be used to construct the deep link url by appending
-         * query parameters to it.
-         */
-        deeplinkUrl: {
-            type: String,
-            value: '',
-            reflectToAttribute: true
+            computed: '_tripTypeChanged(tripType)'
         },
 
         /**
@@ -248,14 +255,13 @@ Polymer({
             value: ""
         },
 
-        /**
-         * The type of cabin, example values are _Economy_ and _Business_
+        /*
+        Name of the event to subscribe to and trigger API call
          */
-        cabinType: {
+        eventName:{
             type: String,
-            value: "Economy"
+            value: 't-air-search'
         },
-
     },
 
     attached: function() {
@@ -263,66 +269,73 @@ Polymer({
         this.async(function() {
             // access sibling or parent elements here
             var startDate = new Date();
-            startDate.setDate(startDate.getDate() + 3);
-            this.$.departureDate.picker.set('min', startDate);
+            startDate.setDate(startDate.getDate() + this.minStartDate);
+            this.$.leg1date.picker.set('min', startDate);
         });
-        this.addEventListener('on-form-submit', function(event) {
-            component.search(event.detail);
-        });
+
+        //api event event registration
+        this.addEventListener(this.eventName+'-api-success', this.onSearchSuccess);
+        this.addEventListener(this.eventName+'-api-error', this.onSearchFailure);
+    },
+
+    _setLeg2Origin: function(newValue, oldValue){
+        this.leg2origin = newValue;
+    },
+
+    _setLeg2Destination: function(newValue, oldValue){
+        this.leg2destination = newValue;
     },
 
     _tripTypeChanged: function(tripType) {
-        if (this.itineraryType !== undefined) {
-            if (this.itineraryType === 'RoundTrip') {
-                this._travelDateChanged();
+        if (this.tripType !== undefined) {
+            if (this.tripType === 'RoundTrip') {
+                this._updateLeg2Date();
                 return false;
             } else {
-                if (this.$.departureDate.picker !== undefined)
-                    this.$.departureDate.picker.set('max', false);
+                if (this.$.leg1date.picker !== undefined)
+                    this.$.leg1date.picker.set('max', false);
             }
         }
         return true;
     },
 
-    _travelDateChanged: function() {
-        if (this.itineraryType !== undefined) {
-            if (this.itineraryType === 'RoundTrip') {
-                if (this.DepartureDate != '') {
-                    this.$.arrivalDate.picker.set('min', new Date(this.DepartureDate));
+    _updateLeg2Date: function(newValue, oldValue) {
+        //handle page load case as picker will be ready to access
+        if(!newValue && !oldValue)
+            return;
+
+        if (this.tripType !== undefined) {
+            if (this.tripType === 'RoundTrip') {
+                if (this.leg1date != '') {
+                    this.$.leg2date.picker.set('min', new Date(this.leg1date));
                 }
             } else {
-
-                this.$.departureDate.picker.set('max', false);
+                this.$.leg1date.picker.set('max', false);
             }
         }
     },
 
-    _returnDateChanged: function() {
-        if (this.itineraryType === 'RoundTrip') {
-            if (this.ArrivalDate != '') {
-                this.$.departureDate.picker.set('max', new Date(this.ArrivalDate));
+    _updateLeg1Date: function() {
+        if (this.tripType === 'RoundTrip') {
+            if (this.leg2date != '') {
+                this.$.leg1date.picker.set('max', new Date(this.leg2date));
             }
         }
-    },
-
-    _getDateArray: function(dateString) {
-        var date = new Date(dateString);
-        return [date.getFullYear, date.getMonth(), date.getDate()];
     },
 
     _getDeeplinkUrl: function() {
 
-        var deeplink = this.deeplinkUrl;
+        var deeplink = '';
 
-        if (this.itineraryType == 'RoundTrip')
+        if (this.tripType == 'RoundTrip')
             deeplink = deeplink + "triptype=RoundTrip&";
         else
             deeplink = deeplink + "triptype=OneWay&";
 
-        deeplink = deeplink + "adults=" + this.adults + "&children=" + this.children + "&seniors=0&infants=" + this.infant + "&nonstoponly=false&cabinclass=NoPreference&deploc1=" + this.$.DepartureAirport.selectedItem.code + "&arrloc1=" + this.$.ArrivalAirport.selectedItem.code + "&depdate1=" + this.DepartureDate + "&inda1=false&inaa1=false";
+        deeplink = deeplink + "adultCounts=" + this.adultCounts + "&childCountren=" + this.childCountren + "&seniors=0&infantCounts=" + this.infantCount + "&nonstoponly=false&cabinclass=NoPreference&deploc1=" + this.$.leg1origin.selectedItem.code + "&arrloc1=" + this.$.leg1destination.selectedItem.code + "&depdate1=" + this.leg1date + "&inda1=false&inaa1=false";
 
-        if (this.itineraryType == 'RoundTrip')
-            deeplink = deeplink + "&deploc2=" + this.$.ArrivalAirport.selectedItem.code + "&arrloc2=" + this.$.DepartureAirport.selectedItem.code + "&depdate2=" + this.ArrivalDate + "&inda2=false&inaa2=false";
+        if (this.tripType == 'RoundTrip')
+            deeplink = deeplink + "&deploc2=" + this.$.leg1destination.selectedItem.code + "&arrloc2=" + this.$.leg1origin.selectedItem.code + "&depdate2=" + this.leg2date + "&inda2=false&inaa2=false";
 
         deeplink = deeplink + "&dateFormat=MM/dd/yyyy&culture=en-US&currency=USD&cid=mystiquedemo&update=true";
 
@@ -330,40 +343,52 @@ Polymer({
     },
 
     _validateDestinations: function(event) {
-        if (this.$.DepartureAirport.selectedItem != null && this.$.ArrivalAirport.selectedItem != null) {
-            if (this.$.DepartureAirport.selectedItem.code == this.$.ArrivalAirport.selectedItem.code) {
-                this.$.ArrivalAirport.isInvalid = true;
-                this.$.ArrivalAirport.validate();
+        if (this.$.leg1origin.selectedItem != null && this.$.leg1destination.selectedItem != null) {
+            if (this.$.leg1origin.selectedItem.code == this.$.leg1destination.selectedItem.code) {
+                this.$.leg1destination.isInvalid = true;
+                this.$.leg1destination.validate();
+                return false;
             }
         }
+        return true;
     },
 
-    changeMaxCount: function() {
-        this.$.adult.max = 9 - this.$.child.count;
-        this.$.child.max = 9 - this.$.adult.count;
-        this.$.infant.max = this.$.adult.count;
+    _changeMaxCount: function() {
+        this.$.adultCount.max = 9 - this.$.childCount.count;
+        this.$.childCount.max = 9 - this.$.adultCount.count;
+        this.$.infantCount.max = this.$.adultCount.count;
     },
 
+    _onSearch: function(event) {
+        if(!this._validateDestinations()){
+            return;
+        }
+
+        if (this.isDeeplink) {
+            this.fire(this.eventName, this._getDeeplinkUrl());
+        } else {
+            //set leg2 data as it is present in form event details
+            var params = event.detail;
+            params.leg2origin = this.leg2origin;
+            params.leg2destination = this.leg2destination;
+
+            var btnSubmit = this.querySelector("#submit");
+            btnSubmit.disabled = true;
+            btnSubmit.label = "Searching Flights...";
+            this.fire(this.eventName, params);
+        }
+    },
 
     /**
      * The method to fire the search function
      */
-    search: function(searchParams) {
-        if (this.searchType == 'url') {
-            var win = window.open(this._getDeeplinkUrl(), '_blank');
-            win.focus();
-        } else {
-            var btnSubmit = this.querySelector("#submit");
-            btnSubmit.disabled = true;
-            btnSubmit.label = "Searching Flights...";
-            this.fire('t-air-search-flights', searchParams);
-        }
-    },
+    search: function() {
+        this.$.searchForm.submit();
+    },    
 
     /**
      * Event listener for successful t-air-search-api call
      * Handler for t-air-search-api-success event
-     * 
      */
     onSearchSuccess: function(event) {
         //not used
@@ -374,7 +399,9 @@ Polymer({
      * Handler for t-air-search-api-error event
      */
     onSearchFailure: function(event) {
-        //not used  
+        var btnSubmit = this.querySelector("#submit");
+        btnSubmit.disabled = false;
+        btnSubmit.label = "Search Flights";
     }
 })
 </script>

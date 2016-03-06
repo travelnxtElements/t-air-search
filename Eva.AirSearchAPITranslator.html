@@ -1,0 +1,102 @@
+<script>
+Eva = window.Eva || {};
+
+/*
+Air search api translator to build request object as per Mystique API and response is not modified, original is returned as is.
+
+<b>Expected UI contract in event args<b/>
+
+    {    
+        adultCount: Number, //default: 1
+        childCount: Number, //default: 0
+        seniorCount: Number,//default: 0
+        infantCount: Number,//default: 0
+        adultAges: Array, //default: []
+        childAges:  Array,//default: []
+        seniorAges: Array,//default: []
+        infantAges: Array,//default: []
+        nonStopOnly: Boolean, //default: false
+        cabinType: String, // Economy/Business/First, //default: Economy
+        leg1origin: Object, //auto suggest api response, //default: null
+        includeNearByAirportsForLeg1Origin: Boolean, //default: true
+        leg1destination: Object, //auto suggest api response, //default: null
+        includeNearByAirportsForLeg1Destination: Boolean, //default: true
+        leg1date: String, //as per globalization format, //default: null
+        leg2origin: Object, //auto suggest api response, //default: null
+        includeNearByAirportsForLeg2Origin: Boolean, //default: true
+        leg2destination: Object, //auto suggest api response, //default: null
+        includeNearByAirportsForLeg2Destination: Boolean, //default: true
+        leg2date: String, //as per globalization format, //default: null
+        tripType: String, //RoundTrip/OneWay
+    }
+
+@polymerBehavior 
+
+*/
+Eva.AirSearchAPITranslator = {
+    /*
+    Constructs request object from given event args
+     */
+     buildRequest: function(data) {
+        var request = {
+            "Passengers": [{
+                "quantity": data.adultCount || 1,
+                "type": "Adult",
+                "ages": data.adultAges || []
+            }, {
+                "quantity": data.childCount || 0,
+                "type": "Child",
+                "ages": data.childAges || []
+            }, {
+                "quantity": data.seniorCount || 0,
+                "type": "Senior",
+                "ages": data.seniorAges || []
+            }, {
+                "quantity": data.infantCount || 0,
+                "type": "Infant",
+                "ages": data.infantAges || []
+            }],
+            "legs": [{
+                "departureLocation": data.leg1origin,
+                "includeNearByAirportsForDeparture": this._getValue(data.includeNearByAirportsForLeg1Origin, true),
+                "arrivalLocation": data.leg1destination,
+                "includeNearByAirportsForArrival": this._getValue(data.includeNearByAirportsForLeg1Destination, true),
+                "travelDate": {
+                    "date": data.leg1date
+                }
+            }],
+            "productType": "Flight",
+            "preferences": {
+                "nonStopOnly": this._getValue(data.nonStopOnly, false),
+                "cabinType": data.cabinType
+            }
+        };
+
+        if (data.tripType.toLowerCase() === 'roundtrip') {
+            request.legs.push({
+                "departureLocation": data.leg2origin,
+                "includeNearByAirportsForDeparture": this._getValue(data.includeNearByAirportsForLeg2Origin, true),
+                "arrivalLocation": data.leg2destination,
+                "includeNearByAirportsForArrival": this._getValue(data.includeNearByAirportsForLeg2Destination, true),
+                "travelDate": {
+                    "date": data.leg2date
+                }
+            });
+        }
+        return request;
+    },
+
+    /*
+    Constructs response object from given event args
+     */
+    buildResponse: function(data){
+        return data;
+    },
+
+    _getValue: function(val, defVal){
+        if(val!= null && val!= undefined)
+            return val;
+        return defVal;
+    }
+}
+</script>
