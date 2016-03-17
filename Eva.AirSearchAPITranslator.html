@@ -4,7 +4,7 @@ Eva = window.Eva || {};
 /*
 Air search api translator to build request object as per Mystique API and response is not modified, original is returned as is.
 
-<b>Expected UI contract in event args<b/>
+<b>Search criteria object model</b>
 
     {    
         adultCount: Number, //default: 1
@@ -16,27 +16,33 @@ Air search api translator to build request object as per Mystique API and respon
         seniorAges: Array,//default: []
         infantAges: Array,//default: []
         nonStopOnly: Boolean, //default: false
-        cabinType: String, // Economy/Business/First, //default: Economy
-        leg1origin: Object, //auto suggest api response, //default: null
+        cabinType: String, // Economy/Business/First, //default: Economy        
+        leg1Origin: Location Object, //default: null  //required field     
         includeNearByAirportsForLeg1Origin: Boolean, //default: true
-        leg1destination: Object, //auto suggest api response, //default: null
+        leg1Destination: Location Object, //default: null //required field
         includeNearByAirportsForLeg1Destination: Boolean, //default: true
-        leg1date: String, //as per globalization format, //default: null
-        leg2origin: Object, //auto suggest api response, //default: null
-        includeNearByAirportsForLeg2Origin: Boolean, //default: true
-        leg2destination: Object, //auto suggest api response, //default: null
-        includeNearByAirportsForLeg2Destination: Boolean, //default: true
-        leg2date: String, //as per globalization format, //default: null
-        tripType: String, //RoundTrip/OneWay
+        leg1Date: String, //as per globalization format, //default: null  //required field     
+        leg2Date: String, //as per globalization format, //default: null  //required field
+        tripType: String, //RoundTrip/OneWay, //default: RoundTrip
     }
 
+<b>Location object model</b>
+
+    {
+        type: String, //Airport/City, //default: Airport
+        geoCode: String, //{Lat,Long} //default: null
+        name: String, //default: null
+        code: String, //default: null
+    }
+
+Note: `geoCode` AND `name` are optional in case `type` is `City`
 @polymerBehavior 
 
 */
 Eva.AirSearchAPITranslator = {
-    /*
-    Constructs request object from given event args
-     */
+    /**
+    * Constructs request object from given event args
+    */
      buildRequest: function(data) {
         var request = {
             "Passengers": [{
@@ -57,12 +63,12 @@ Eva.AirSearchAPITranslator = {
                 "ages": data.infantAges || []
             }],
             "legs": [{
-                "departureLocation": data.leg1origin,
+                "departureLocation": data.leg1Origin,
                 "includeNearByAirportsForDeparture": this._getValue(data.includeNearByAirportsForLeg1Origin, true),
-                "arrivalLocation": data.leg1destination,
+                "arrivalLocation": data.leg1Destination,
                 "includeNearByAirportsForArrival": this._getValue(data.includeNearByAirportsForLeg1Destination, true),
                 "travelDate": {
-                    "date": data.leg1date
+                    "date": data.leg1Date
                 }
             }],
             "productType": "Flight",
@@ -74,21 +80,21 @@ Eva.AirSearchAPITranslator = {
 
         if (data.tripType.toLowerCase() === 'roundtrip') {
             request.legs.push({
-                "departureLocation": data.leg2origin,
-                "includeNearByAirportsForDeparture": this._getValue(data.includeNearByAirportsForLeg2Origin, true),
-                "arrivalLocation": data.leg2destination,
-                "includeNearByAirportsForArrival": this._getValue(data.includeNearByAirportsForLeg2Destination, true),
+                "departureLocation": data.leg1Destination,
+                "includeNearByAirportsForDeparture": this._getValue(data.includeNearByAirportsForLeg1Destination, true),
+                "arrivalLocation": data.leg1Origin,
+                "includeNearByAirportsForArrival": this._getValue(data.includeNearByAirportsForLeg1Origin, true),
                 "travelDate": {
-                    "date": data.leg2date
+                    "date": data.leg2Date
                 }
             });
-        }
+        }        
         return request;
     },
 
-    /*
-    Constructs response object from given event args
-     */
+    /**
+    * Constructs response object from given event args
+    */
     buildResponse: function(data){
         return data;
     },

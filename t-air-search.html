@@ -56,20 +56,20 @@ API component's in-progress and error states are not handled in this view compon
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="leg1origin" name="leg1origin" required selected-item="{{leg1origin}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this."></t-autosuggest>
+                        <t-autosuggest id="leg1Origin" name="leg1Origin" required selected-item="{{leg1Origin}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this."></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped" style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="leg1destination" name="leg1destination" selected-item="{{leg1destination}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
+                        <t-autosuggest id="leg1Destination" name="leg1Destination" selected-item="{{leg1Destination}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
                     </div>
                 </div>
                 <div class="horizontal flex layout  grouped">
                     <div class="fieldset flex" data-category="formComponents">
-                        <t-calendar id="leg1date" required selected-date="{{leg1date}}" label="Departing" name="leg1date" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
+                        <t-calendar id="leg1Date" required selected-date="{{leg1Date}}" label="Departing" name="leg1Date" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                     <div class="flex fieldset " data-category="formComponents" hidden$="{{_isRoundTrip}}">
-                        <t-calendar id="leg2date" required$="{{!_isRoundTrip}}" selected-date="{{leg2date}}" label="Returning" name="leg2date" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
+                        <t-calendar id="leg2Date" required$="{{!_isRoundTrip}}" selected-date="{{leg2Date}}" label="Returning" name="leg2Date" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     </div>
                 </div>
                 <div class="horizontal flex layout " style="position: relative;margin-top: 5px;">
@@ -112,35 +112,15 @@ Polymer({
         /*
         Leg 1 origin location, should be t-autosuggest selected item ie autosuggest api response
          */
-        leg1origin: {
+        leg1Origin: {
             type: Object,
-            notify: true,
-            'observer': '_setLeg2Destination'
+            notify: true
         },
 
         /*
         Leg 1 destination location, should be t-autosuggest selected item ie autosuggest api response
          */
-        leg1destination: {
-            type: Object,
-            notify: true,
-            'observer': '_setLeg2Origin'
-        },
-
-         /*
-        Leg 2 origin location, should be t-autosuggest selected item ie autosuggest api response
-        In case _Round Trip_ this will be set to 'leg1destination'
-         */
-        leg2origin: {
-            type: Object,
-            notify: true
-        },
-
-         /*
-        Leg 2 destination location, should be t-autosuggest selected item ie autosuggest api response
-        In case _Round Trip_ this will be set to 'leg1origin'
-         */
-        leg2destination: {
+        leg1Destination: {
             type: Object,
             notify: true
         },
@@ -148,7 +128,7 @@ Polymer({
         /*
         Leg 1 origin location start date
          */        
-        leg1date: {
+        leg1Date: {
             type: String,
             notify: true,
             observer: '_updateLeg2Date'
@@ -157,7 +137,7 @@ Polymer({
         /*
         Leg 1 origin location start date
          */        
-        leg2date: {
+        leg2Date: {
             type: String,
             notify: true,
             observer: '_updateLeg1Date'
@@ -191,7 +171,7 @@ Polymer({
         },
 
         /*
-        Used to set leg1date datepicker min value on page load (current date + minStartDate)        
+        Used to set leg1Date datepicker min value on page load (current date + minStartDate)        
          
          */
         minStartDate:{
@@ -270,20 +250,12 @@ Polymer({
             // access sibling or parent elements here
             var startDate = new Date();
             startDate.setDate(startDate.getDate() + this.minStartDate);
-            this.$.leg1date.picker.set('min', startDate);
+            this.$.leg1Date.picker.set('min', startDate);
         });
 
         //api event event registration
         this.addEventListener(this.eventName+'-api-success', this.onSearchSuccess);
         this.addEventListener(this.eventName+'-api-error', this.onSearchFailure);
-    },
-
-    _setLeg2Origin: function(newValue, oldValue){
-        this.leg2origin = newValue;
-    },
-
-    _setLeg2Destination: function(newValue, oldValue){
-        this.leg2destination = newValue;
     },
 
     _tripTypeChanged: function(tripType) {
@@ -292,8 +264,8 @@ Polymer({
                 this._updateLeg2Date();
                 return false;
             } else {
-                if (this.$.leg1date.picker !== undefined)
-                    this.$.leg1date.picker.set('max', false);
+                if (this.$.leg1Date.picker !== undefined)
+                    this.$.leg1Date.picker.set('max', false);
             }
         }
         return true;
@@ -306,19 +278,19 @@ Polymer({
 
         if (this.tripType !== undefined) {
             if (this.tripType === 'RoundTrip') {
-                if (this.leg1date != '') {
-                    this.$.leg2date.picker.set('min', new Date(this.leg1date));
+                if (this.leg1Date != '') {
+                    this.$.leg2Date.picker.set('min', new Date(this.leg1Date));
                 }
             } else {
-                this.$.leg1date.picker.set('max', false);
+                this.$.leg1Date.picker.set('max', false);
             }
         }
     },
 
     _updateLeg1Date: function() {
         if (this.tripType === 'RoundTrip') {
-            if (this.leg2date != '') {
-                this.$.leg1date.picker.set('max', new Date(this.leg2date));
+            if (this.leg2Date != '') {
+                this.$.leg1Date.picker.set('max', new Date(this.leg2Date));
             }
         }
     },
@@ -332,10 +304,10 @@ Polymer({
         else
             deeplink = deeplink + "triptype=OneWay&";
 
-        deeplink = deeplink + "adultCounts=" + this.adultCounts + "&childCountren=" + this.childCountren + "&seniors=0&infantCounts=" + this.infantCount + "&nonstoponly=false&cabinclass=NoPreference&deploc1=" + this.$.leg1origin.selectedItem.code + "&arrloc1=" + this.$.leg1destination.selectedItem.code + "&depdate1=" + this.leg1date + "&inda1=false&inaa1=false";
+        deeplink = deeplink + "adultCounts=" + this.adultCounts + "&childCountren=" + this.childCountren + "&seniors=0&infantCounts=" + this.infantCount + "&nonstoponly=false&cabinclass=NoPreference&deploc1=" + this.$.leg1Origin.selectedItem.code + "&arrloc1=" + this.$.leg1Destination.selectedItem.code + "&depdate1=" + this.leg1Date + "&inda1=false&inaa1=false";
 
         if (this.tripType == 'RoundTrip')
-            deeplink = deeplink + "&deploc2=" + this.$.leg1destination.selectedItem.code + "&arrloc2=" + this.$.leg1origin.selectedItem.code + "&depdate2=" + this.leg2date + "&inda2=false&inaa2=false";
+            deeplink = deeplink + "&deploc2=" + this.$.leg1Destination.selectedItem.code + "&arrloc2=" + this.$.leg1Origin.selectedItem.code + "&depdate2=" + this.leg2Date + "&inda2=false&inaa2=false";
 
         deeplink = deeplink + "&dateFormat=MM/dd/yyyy&culture=en-US&currency=USD&cid=mystiquedemo&update=true";
 
@@ -343,10 +315,10 @@ Polymer({
     },
 
     _validateDestinations: function(event) {
-        if (this.$.leg1origin.selectedItem != null && this.$.leg1destination.selectedItem != null) {
-            if (this.$.leg1origin.selectedItem.code == this.$.leg1destination.selectedItem.code) {
-                this.$.leg1destination.isInvalid = true;
-                this.$.leg1destination.validate();
+        if (this.$.leg1Origin.selectedItem != null && this.$.leg1Destination.selectedItem != null) {
+            if (this.$.leg1Origin.selectedItem.code == this.$.leg1Destination.selectedItem.code) {
+                this.$.leg1Destination.isInvalid = true;
+                this.$.leg1Destination.validate();
                 return false;
             }
         }
@@ -367,15 +339,10 @@ Polymer({
         if (this.isDeeplink) {
             this.fire(this.eventName, this._getDeeplinkUrl());
         } else {
-            //set leg2 data as it is present in form event details
-            var params = event.detail;
-            params.leg2origin = this.leg2origin;
-            params.leg2destination = this.leg2destination;
-
             var btnSubmit = this.querySelector("#submit");
             btnSubmit.disabled = true;
             btnSubmit.label = "Searching Flights...";
-            this.fire(this.eventName, params);
+            this.fire(this.eventName, event.detail);
         }
     },
 
