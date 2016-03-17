@@ -6,16 +6,17 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="../../t-mystique-auth/t-mystique-auth.html">
     <link rel="import" href="../../t-shared-components/theme.html">    
 
     <link rel="import" href="../t-air-search.html">
     <link rel="import" href="../../t-shared-lib/t-base-api.html">
+    <link rel="import" href="../../iron-meta/iron-meta.html">   
     <link rel="import" href="../Eva.AirSearchAPITranslator.html">
+
 
     <style>
     t-air-search t-form{
-        height: 100%;
+        height: 90%;
     }
     </style>
 </head>
@@ -23,11 +24,15 @@
 <body>
     <template is="dom-bind" id="domBindTemplate">
 
+        <iron-meta key="contextName" value="mystiquedemo" type="globals"></iron-meta>
+
         <t-air-search id="searchView" suggestion-url="http://demo.travelnxt.com/api/Content/autosuggest/" query-params="token={{tokenResponse.authenticationToken}}" min-start-date="1" event-name="t-air-search"></t-air-search>
 
-        <t-base-api id="searchApi" loading={{loading}} method="POST" api-base-url="http://demo.travelnxt.com/" api-relative-url="api/flight/search" auth-token="{{tokenResponse.authenticationToken}}" event-name="t-air-search" translator-type="Eva.AirSearchAPITranslator"></t-base-api>
+        <t-base-api id="searchApi" loading={{loading}} method="POST" api-base-url="http://demo.travelnxt.com/api/" api-relative-url="flight/search" event-name="t-air-search" translator-type="Eva.AirSearchAPITranslator"></t-base-api>
 
-        <t-mystique-auth name="mystiquedemo" url="http://demo.travelnxt.com/api/authentication/authenticate/context" token-response="{{tokenResponse}}" auto></t-mystique-auth>
+
+
+        <!-- <t-mystique-auth name="mystiquedemo" url="http://demo.travelnxt.com/api/authentication/authenticate/context" token-response="{{tokenResponse}}" auto></t-mystique-auth> -->
         
         <template is="dom-if" if="{{loading}}">
             <div>API in-progress, wait..</div>
@@ -37,9 +42,20 @@
 <script>
 window.addEventListener('WebComponentsReady', function(e) {
     var apiComp = document.getElementById('searchApi');
+    var airSearchComp = document.querySelector('t-air-search');
     apiComp.addEventListener(apiComp.eventName + '-api-success', function(e){ alert('search success - '+ e.detail.searchId ) });
     apiComp.addEventListener(apiComp.eventName + '-api-error', function(e){ alert('search failed - '+ e.detail.message) });
 
+    if(apiComp.isReady){
+        debugger;
+        airSearchComp.queryParams = 'token=' + apiComp.authToken;
+    }
+    else{
+        apiComp.addEventListener('t-auth-api-success', function(e){
+            debugger;
+            airSearchComp.queryParams = 'token=' + e.detail;
+        });
+    }    
 });
 </script>
 
