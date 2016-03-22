@@ -1,17 +1,47 @@
 <link rel='import' href='../polymer/polymer.html'>
 <link rel='import' href='../t-form/t-form.html'>
 <!--
-Use t-air-sarch UI component to capture and validate flight search criteria. 
+t-air-search is an UI component to capture below flight search criteria. It supports both one way and round trip searches but no multi city search. Upon search button click it validates criteria and fires a search event `t-air-search` which can be captured and pass on to API component to initiate a search. 
 
-It supports both 'OneWay' and 'RoundTrip' searches with cabin type preference. Upon search button click, it fires an event using 'eventName' on 'body' tag with all user input data and also registers two callback handlers for api component's success and error events like 'eventName'+ '-api-success' and 'eventName'+ '-api-error' on same 'body' tag.    
-    
-API component's in-progress and error states are not handled in this view component, so handle explicitly outside of it.
+__UI search criteria object model passed in `t-air-search` event arguments__
 
-<b>Example with API component</b>
+    {    
+        adultCount: Number, //default: 1
+        childCount: Number, //default: 0
+        infantCount: Number,//default: 0
+        cabinType: String, // Economy/Business/First, //default: Economy        
+        leg1Origin: Location Object, //default: null  //required field     
+        leg1Destination: Location Object, //default: null //required field
+        leg1Date: String, //as per globalization format, //default: null  //required field     
+        leg2Date: String, //as per globalization format, //default: null  //required field
+        tripType: String, //RoundTrip/OneWay, //default: RoundTrip
+    }
+ 
+__Location object model__
 
-    <t-air-search id="searchView" suggestion-url="{{API Full Url}}" query-params="token={{Auth Token}}" event-name="t-air-search"></t-air-search>
+    {
+        type: String, //Airport/City, 
+        geoCode: String, //{Lat,Long} 
+        name: String, 
+        code: String, 
+        cityName: String, 
+        countryCode: String, 
+        countryName: String, 
+        formattedAddress: String, 
+        id: Number, 
+        stateCode: String, 
+        stateName: String
+    }   
 
-    <t-base-api id="searchApi" loading={{loading}} api-base-url="{{API Base Url}}" api-relative-url="{{API Rel Url}}" event-name="t-air-search" translator-type="Eva.AirSearchTranslator"></t-base-api>
+__Example with API component__
+
+    <t-air-search id="searchView" suggestion-url="{{API Full Url}}" query-params="token={{Auth Token}}"></t-air-search>
+
+    <t-air-search-api id="searchApi" loading={{loading}}></t-air-search-api>
+    <iron-meta key="Eva.contextName" value="testcontext" type="globals"></iron-meta>    
+    <iron-meta key="Eva.apiBaseUrl" value="somedomain.com" type="globals"></iron-meta>
+
+Note: API call in-progress and error states are not handled in this view component, so handle explicitly outside of it.
 -->
 
 
@@ -103,30 +133,32 @@ Polymer({
 
 
      /**
-     * Fired when user clicks on search button or 'search' API is called and criteria is valid.
-     * @event 'eventName'+ '-api-search'
+     * Fired when user clicks on search button or 'search' API is called. 
+     * @event t-air-search
+     * @param {Object} SearchCriteria Check above criteria model for reference
      */
            
 
     properties: {
-        /*
-        Leg 1 origin location, should be t-autosuggest selected item ie autosuggest api response
+        /**
+         * Leg 1 origin location, should be t-autosuggest selected item ie autosuggest api response
          */
         leg1Origin: {
             type: Object,
             notify: true
         },
 
-        /*
-        Leg 1 destination location, should be t-autosuggest selected item ie autosuggest api response
+        /**
+         * Leg 1 destination location, should be t-autosuggest selected item ie autosuggest api 
+         * response
          */
         leg1Destination: {
             type: Object,
             notify: true
         },
 
-        /*
-        Leg 1 origin location start date
+        /**
+         * Leg 1 origin location start date
          */        
         leg1Date: {
             type: String,
@@ -134,8 +166,8 @@ Polymer({
             observer: '_updateLeg2Date'
         },
 
-        /*
-        Leg 1 origin location start date
+        /**
+         * Leg 1 origin location start date
          */        
         leg2Date: {
             type: String,
@@ -170,9 +202,8 @@ Polymer({
             notify: true,
         },
 
-        /*
-        Used to set leg1Date datepicker min value on page load (current date + minStartDate)        
-         
+        /**
+         * Used to set leg1Date datepicker min value on page load (current date + minStartDate)                 
          */
         minStartDate:{
             type: Number,
@@ -235,8 +266,9 @@ Polymer({
             value: ""
         },
 
-        /*
-        Name of the event to subscribe to and trigger API call
+        /**
+         * Name of the event to subscribe to and trigger API call. By defaults it subscribes to
+         * Mystique seach api.
          */
         eventName:{
             type: String,
@@ -256,6 +288,7 @@ Polymer({
         //api event event registration
         this.addEventListener(this.eventName+'-api-success', this.onSearchSuccess);
         this.addEventListener(this.eventName+'-api-error', this.onSearchFailure);
+
     },
 
     _tripTypeChanged: function(tripType) {
