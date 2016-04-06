@@ -1,5 +1,6 @@
 <link rel='import' href='../polymer/polymer.html'>
 <link rel='import' href='../t-form/t-form.html'>
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html" />
 <!--
 This component is a form that allows a user to search for flights.
 It exposes certain prperties which allow control over different aspects
@@ -20,7 +21,7 @@ of this component to control the behaviour of this component.
 -->
 <dom-module id='t-air-search'>
     <template>
-        <style>
+        <style include="iron-flex">
         :host {
             display: block;
             padding: 0 10px 5px;
