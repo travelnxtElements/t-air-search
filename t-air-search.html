@@ -28,6 +28,7 @@ of this component to control the behaviour of this component.
         }
         
         t-form {
+            display: block;
             padding: 0;
             margin: 0;
             max-width: 100%;
@@ -50,7 +51,7 @@ of this component to control the behaviour of this component.
             outline: 0;
         }
         </style>
-        <t-form show-loader error-block class="canvas vertical layout flex" name="untitled-form" heading="Untitled Form" action-button="Full" submit-button-label="Search Flights" secondary-action-label="Cancel" label-position="Top">
+        <t-form show-loader error-block action-button="Full" submit-button-label="Search Flights">
             <div class="form flex ">
                 <div class="horizontal flex layout " style="position: relative;">
                     <div class="flex fieldset " data-category="formComponents">
