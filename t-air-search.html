@@ -138,8 +138,7 @@ Polymer({
         ArrivalDate: {
             type: String,
             value: '',
-            notify: true,
-            observer: '_returnDateChanged'
+            notify: true
         },
 
         /**
@@ -279,10 +278,6 @@ Polymer({
                 this._travelDateChanged();
                 return false;
             }
-            else {
-                if(this.$.departureDate.picker !== undefined)
-                    this.$.departureDate.picker.set('max', false);
-            }
         }
         return true;
     },
@@ -292,19 +287,11 @@ Polymer({
             if (this.itineraryType === 'RoundTrip') {
                 if (this.DepartureDate != '') {
                     this.$.arrivalDate.picker.set('min', new Date(this.DepartureDate));
+                    if(this.DepartureDate > this.ArrivalDate){
+                        this.ArrivalDate = null;
+                    }
                 }
-            } else {
-
-                this.$.departureDate.picker.set('max', false);
-            }
-        }
-    },
-
-    _returnDateChanged: function() {
-        if (this.itineraryType === 'RoundTrip') {
-            if (this.ArrivalDate != '') {
-                this.$.departureDate.picker.set('max', new Date(this.ArrivalDate));
-            }
+            } 
         }
     },
 
