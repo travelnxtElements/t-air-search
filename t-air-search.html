@@ -319,10 +319,13 @@ Polymer({
         return deeplink;
     },
 
-    _validateDestinations: function(event) {
+    _validateDestinations: function (event) {
         if (this.$.DepartureAirport.selectedItem != null && this.$.ArrivalAirport.selectedItem != null) {
             if (this.$.DepartureAirport.selectedItem.code == this.$.ArrivalAirport.selectedItem.code) {
                 this.$.ArrivalAirport.isInvalid = true;
+                this.$.ArrivalAirport.validate();
+            } else if (this.ArrivalAirport != null) {
+                this.$.ArrivalAirport.isInvalid = false;
                 this.$.ArrivalAirport.validate();
             }
         }
