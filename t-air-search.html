@@ -257,6 +257,13 @@ Polymer({
             value: "Economy"
         },
 
+         /**
+         * Pass the minimum date difference to start booking from
+         *///
+        bookDateDifference: {
+            type: Number,
+            value: 3
+        }
     },
 
     attached: function() {
@@ -264,7 +271,7 @@ Polymer({
         this.async(function() {
             // access sibling or parent elements here
             var startDate = new Date();
-            startDate.setDate(startDate.getDate() + 3);
+            startDate.setDate(startDate.getDate() + this.bookDateDifference);
             this.$.departureDate.picker.set('min', startDate);
         });
         this.addEventListener('on-form-submit', function(event) {
