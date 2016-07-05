@@ -1,5 +1,9 @@
 <link rel='import' href='../polymer/polymer.html'>
-<link rel='import' href='../t-form/t-form.html'>
+<link rel="import" href="../t-stepper/t-stepper.html" />
+<link rel="import" href="../t-button/t-button.html" />
+<link rel="import" href="../t-radio-group/t-radio-group.html" />
+<link rel="import" href="../t-autosuggest/t-autosuggest.html" />
+<link rel="import" href="../t-calendar/t-calendar.html" />
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html" />
 <!--
 This component is a form that allows a user to search for flights.
@@ -23,15 +27,9 @@ of this component to control the behaviour of this component.
     <template>
         <style include="iron-flex">
         :host {
+            font-family: var(--primary-font-family);
             display: block;
-            padding: 0 10px 5px;
-        }
-        
-        t-form {
-            display: block;
-            padding: 0;
-            margin: 0;
-            max-width: 100%;
+            padding: var(--form-spacing,10px);
         }
         
         [pill-button] ::content iron-selector {
@@ -50,56 +48,52 @@ of this component to control the behaviour of this component.
         t-stepper {
             outline: 0;
         }
+
+        #departureDate{
+            margin-right: var(--form-spacing,10px);
+        }
+        .row {
+            margin: 20px 0;
+            display: block;
+        }
+        .row:first-child{
+            margin: 0 0 20px 0;
+            display: block;
+        }
+        #search {
+            margin-top: 10px;
+        }
         </style>
-        <t-form show-loader error-block action-button="Full" submit-button-label="Search Flights">
             <div class="form flex ">
-                <div class="horizontal flex layout " style="position: relative;">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-radio-group id="itineraryType" name="itineraryType" data='["RoundTrip","OneWay"]' pill-button selected-item="{{itineraryType}}">
-                        </t-radio-group>
-                    </div>
+                <div class="row">
+                    <t-radio-group id="itineraryType" name="itineraryType" data='["RoundTrip","OneWay"]' pill-button selected-item="{{itineraryType}}">
+                    </t-radio-group>
                 </div>
-                <div class="horizontal flex layout  grouped" style="position: relative;">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-value="{{DepartureAirport}}" query-params="{{queryParams}}" sub-type="airport" class="center-justified" label="Origin" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this."></t-autosuggest>
-                    </div>
+                <div class="row">
+                    <t-autosuggest id="DepartureAirport" name="DepartureAirport" required selected-item="{{departureAirport}}" query-params="token={{authToken}}" label="Origin" token-param="formattedAddress" data-url="{{autosuggestApi}}" error-message="You missed this."></t-autosuggest>
                 </div>
-                <div class="horizontal flex layout  grouped" style="position: relative;">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-value="{{ArrivalAirport}}" query-params="{{queryParams}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{suggestionUrl}}" on-autosuggest-select="_validateDestinations" on-blur="_validateDestinations" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
-                    </div>
+                <div class="row">
+                    <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-item="{{arrivalAirport}}" query-params="token={{authToken}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{autosuggestApi}}" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
                 </div>
-                <div class="horizontal flex layout  grouped">
-                    <div class="fieldset flex" data-category="formComponents">
-                        <t-calendar id="departureDate" required selected-date="{{DepartureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
-                    </div>
-                    <div class="flex fieldset " data-category="formComponents" hidden$="{{_isRoundTrip}}">
-                        <t-calendar id="arrivalDate" required$="{{!_isRoundTrip}}" selected-date="{{ArrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
-                    </div>
+                <div class="row layout horizontal">
+                    <t-calendar class="flex" id="departureDate" required selected-date="{{departureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
+                    <t-calendar class="flex" id="arrivalDate" hidden$="{{_isRoundTrip}}" required$="{{!_isRoundTrip}}" selected-date="{{arrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                 </div>
-                <div class="horizontal flex layout " style="position: relative;margin-top: 5px;">
-                    <div class="fieldset flex" data-category="formComponents">
-                        <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-changed="changeMaxCount" id="adult"></t-stepper>
-                    </div>
+                <div class="row">
+                    <t-stepper min="1" max="9" plural-label="Adults" singular-label="Adult" secondary-label="(12+ years)" count="{{adult}}" name="adult" on-count-changed="changeMaxCount" id="adult"></t-stepper>
                 </div>
-                <div class="horizontal flex layout ">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-changed="changeMaxCount"></t-stepper>
-                    </div>
+                <div class="row">
+                    <t-stepper min="0" max$="{{_maxChildren}}" secondary-label="(0-11 years)" plural-label="Children" singular-label="Child" count="{{child}}" name="child" id="child" on-count-changed="changeMaxCount"></t-stepper>
                 </div>
-                <div class="horizontal flex layout ">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-stepper min="0" max$="{{_maxInfants}}" secondary-label="(<2 years, in lap)" plural-label="Infants" singular-label="Infant" count="{{infant}}" name="infant" id="infant"></t-stepper>
-                    </div>
+                <div class="row">
+                    <t-stepper min="0" max$="{{_maxInfants}}" secondary-label="(<2 years, in lap)" plural-label="Infants" singular-label="Infant" count="{{infant}}" name="infant" id="infant"></t-stepper>
                 </div>
-                <div class="horizontal flex layout ">
-                    <div class="flex fieldset " data-category="formComponents">
-                        <t-radio-group id="cabinType" pill-button name="cabinType" selected-item="{{cabinType}}" data='["Economy","Business","First"]' class="flightClass">
-                        </t-radio-group>
-                    </div>
+                <div class="row">
+                    <t-radio-group id="cabinType" pill-button name="cabinType" selected-item="{{cabinType}}" data='["Economy","Business","First"]' class="flightClass">
+                    </t-radio-group>
                 </div>
+                <t-button id="search" class="primary row" on-click="searchFlight" type="button" label="Search Cars" /></t-button>
             </div>
-        </t-form>
     </template>
 </dom-module>
 <script>
@@ -111,20 +105,19 @@ Polymer({
          * The location to search from.
          * Must be a value picked from suggested locations?.
          */
-        DepartureAirport: String,
+        departureAirport: Object,
 
         /**
          * The location of arrival.
          * Must be a value picked from suggested locations?.
          */
-        ArrivalAirport: {
-            type:String,
-            observer:'_validateDestinations'
+        arrivalAirport: {
+            type:Object
         },
         /**
          * The date of departure.
          */
-        DepartureDate: {
+        departureDate: {
             type: String,
             value: '',
             notify: true,
@@ -135,7 +128,7 @@ Polymer({
          * The date of returning back to the departure location
          * __if__ the type of trip is _Round Trip_
          */
-        ArrivalDate: {
+        arrivalDate: {
             type: String,
             value: '',
             notify: true
@@ -187,7 +180,7 @@ Polymer({
          * The api url that returns suggestions (auto suggest) shown in
          * departure and arrival airport fields
          */
-        suggestionUrl: String,
+        autosuggestApi: String,
 
         /**
          * The error message that will be shown to the user
@@ -209,19 +202,6 @@ Polymer({
         },
 
         /**
-         * Controls how the search happens, if the value of this is set to
-         * 'event' then it raises a event which can be handled by the consumer
-         * of this component to do search. In another case if the value is
-         * set to `url` then search will be done by opening the deep link
-         * url.
-         */
-        searchType: {
-            type: String,
-            value: 'event',
-            reflectToAttribute: true
-        },
-
-        /**
          * Check if the type of trip is _Round Trip_
          */
         _isRoundTrip: {
@@ -229,22 +209,11 @@ Polymer({
             computed: '_tripTypeChanged(itineraryType)'
         },
 
-        /**
-         * The url that will used for searching if `searchType` is set to `url`.
-         * The initial * value should be set to the search api url, this initial
-         * value be used to construct the deep link url by appending
-         * query parameters to it.
-         */
-        deeplinkUrl: {
-            type: String,
-            value: '',
-            reflectToAttribute: true
-        },
 
         /**
          * The query parameter for autosuggest to work. This is token to pass with the request for * autosuggest.
          */
-        queryParams: {
+        authToken: {
             type: String,
             value: ""
         },
@@ -265,6 +234,10 @@ Polymer({
             value: 3
         }
     },
+
+    observers: [
+        '_validateDestinations(departureAirport,arrivalAirport)'
+    ],
 
     attached: function() {
         var component = this;
@@ -292,10 +265,10 @@ Polymer({
     _travelDateChanged: function() {
         if (this.itineraryType !== undefined) {
             if (this.itineraryType === 'RoundTrip') {
-                if (this.DepartureDate != '') {
-                    this.$.arrivalDate.picker.set('min', new Date(this.DepartureDate));
-                    if(this.DepartureDate > this.ArrivalDate){
-                        this.ArrivalDate = null;
+                if (this.departureDate != '') {
+                    this.$.arrivalDate.picker.set('min', new Date(this.departureDate));
+                    if(this.departureDate > this.arrivalDate){
+                        this.arrivalDate = null;
                     }
                 }
             } 
@@ -305,25 +278,6 @@ Polymer({
     _getDateArray: function(dateString) {
         var date = new Date(dateString);
         return [date.getFullYear, date.getMonth(), date.getDate()];
-    },
-
-    _getDeeplinkUrl: function() {
-
-        var deeplink = this.deeplinkUrl;
-
-        if (this.itineraryType == 'RoundTrip')
-            deeplink = deeplink + "triptype=RoundTrip&";
-        else
-            deeplink = deeplink + "triptype=OneWay&";
-
-        deeplink = deeplink + "adults=" + this.adults + "&children=" + this.children + "&seniors=0&infants=" + this.infant + "&nonstoponly=false&cabinclass=NoPreference&deploc1=" + this.$.DepartureAirport.selectedItem.code + "&arrloc1=" + this.$.ArrivalAirport.selectedItem.code + "&depdate1=" + this.DepartureDate + "&inda1=false&inaa1=false";
-
-        if (this.itineraryType == 'RoundTrip')
-            deeplink = deeplink + "&deploc2=" + this.$.ArrivalAirport.selectedItem.code + "&arrloc2=" + this.$.DepartureAirport.selectedItem.code + "&depdate2=" + this.ArrivalDate + "&inda2=false&inaa2=false";
-
-        deeplink = deeplink + "&dateFormat=MM/dd/yyyy&culture=en-US&currency=USD&cid=mystiquedemo&update=true";
-
-        return deeplink;
     },
 
     _validateDestinations: function (event) {
@@ -344,20 +298,50 @@ Polymer({
         this.$.infant.max = this.$.adult.count;
     },
 
+    /*
+     * <p>Builds search request</p>
+    */
+    _buildSearchRequest: function() {
+
+        return {
+            itineraryType: this.itineraryType,
+            departureAirport: this.departureAirport,
+            arrivalAirport: this.arrivalAirport,
+            departureDate: this.departureDate,
+            arrivalDate: this.arrivalDate,
+            adult: this.adult,
+            child : this.child,
+            infant : this.infant,
+            cabinType : this.cabinType
+            
+        };
+    },
 
     /**
      * The method to fire the search function
      */
-    search: function(searchParams) {
-        if (this.searchType == 'url') {
-            var win = window.open(this._getDeeplinkUrl(), '_blank');
-            win.focus();
-        } else {
-            var btnSubmit = this.querySelector("#submit");
-            btnSubmit.disabled = true;
-            btnSubmit.label = "Searching Flights...";
-            this.fire('on-search', searchParams);
+    searchFlight: function(searchParams) {
+        if (!this.validate()) {
+            return;
         }
+
+        var request = this._buildSearchRequest();
+
+        this.fire('t-air-search', request);
+    },
+
+    /*
+     * <p>validation function</p>
+    */
+    validate: function() {
+        var check = true;
+        var requiredFields = this.querySelectorAll('[required]');
+        for (var i = 0; i < requiredFields.length; i++) {
+            if (!requiredFields[i].validate()) {
+                check = false;
+            }
+        }
+        return check;
     }
-})
+});
 </script>
