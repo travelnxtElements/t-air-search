@@ -149,9 +149,9 @@
                 "legs": [
                     {
                         "departureLocation": data.departureAirport,
-                        "includeNearByAirportsForDeparture": true,
+                        "includeNearByAirportsForDeparture": false,
                         "arrivalLocation": data.arrivalAirport,
-                        "includeNearByAirportsForArrival": true,
+                        "includeNearByAirportsForArrival": false,
                         "travelDate": {
                             "date":  this._getFormattedDate(data.departureDate)
                         }
@@ -162,9 +162,9 @@
             if (data.itineraryType === 'RoundTrip') {
                 query.legs[1] = {
                     "departureLocation": data.arrivalAirport,
-                    "includeNearByAirportsForDeparture": true,
+                    "includeNearByAirportsForDeparture": false,
                     "arrivalLocation": data.departureAirport,
-                    "includeNearByAirportsForArrival": true,
+                    "includeNearByAirportsForArrival": false,
                     "travelDate": {
                         "date":  this._getFormattedDate(data.arrivalDate)
                     }
