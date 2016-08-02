@@ -29,6 +29,7 @@
     "t-form": "atomelements/t-form#^1.0.0",
     "polymer": "Polymer/polymer#^1.0.0",
     "t-shared-lib": "travelnxtElements/t-shared-lib#^1.0.0",
+    "t-text-container": "travelnxtElements/t-text-container#^1.0.0",
     "t-sessionstorage": "travelnxtElements/t-sessionstorage#^1.0.1"
   },
   "devDependencies": {

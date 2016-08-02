@@ -5,6 +5,8 @@
 <link rel="import" href="../t-autosuggest/t-autosuggest.html" />
 <link rel="import" href="../t-calendar/t-calendar.html" />
 <link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html" />
+<link rel="import" href="../t-shared-lib/t-form-behavior.html" />
+<link rel="import" href="../t-text-container/t-search-form-styles.html" />
 <!--
 This component is a form that allows a user to search for flights.
 It exposes certain prperties which allow control over different aspects
@@ -25,44 +27,24 @@ of this component to control the behaviour of this component.
 -->
 <dom-module id='t-air-search'>
     <template>
+        <style include="t-search-form-styles"></style>
         <style include="iron-flex">
-        :host {
-            font-family: var(--primary-font-family);
-            display: block;
-            padding: var(--form-spacing,10px);
-        }
-        
-        [pill-button] ::content iron-selector {
-            width: 100%;
-            text-align: center;
-        }
-        
-        ::content t-radio-button {
-            -ms-flex: 1;
-            -webkit-flex: 1;
-            flex: 1;
-        }
-        
-        t-autosuggest,
-        t-calendar,
-        t-stepper {
-            outline: 0;
-        }
-
-        #departureDate{
-            margin-right: var(--form-spacing,10px);
-        }
-        .row {
-            margin: 20px 0;
-            display: block;
-        }
-        .row:first-child{
-            margin: 0 0 20px 0;
-            display: block;
-        }
-        #search {
-            margin-top: 10px;
-        }
+            [pill-button] ::content iron-selector {
+                width: 100%;
+                text-align: center;
+            }
+            
+            ::content t-radio-button {
+                -ms-flex: 1;
+                -webkit-flex: 1;
+                flex: 1;
+            }
+            
+            t-autosuggest,
+            t-calendar,
+            t-stepper {
+                outline: 0;
+            }
         </style>
             <div class="form flex ">
                 <div class="row">
@@ -76,7 +58,7 @@ of this component to control the behaviour of this component.
                     <t-autosuggest id="ArrivalAirport" name="ArrivalAirport" selected-item="{{arrivalAirport}}" query-params="token={{authToken}}" sub-type="airport" required label="Destination" token-param="formattedAddress" data-url="{{autosuggestApi}}" error-message="You missed this." invalid-error-message="Destination is same as Origin"></t-autosuggest>
                 </div>
                 <div class="row layout horizontal">
-                    <t-calendar class="flex" id="departureDate" required selected-date="{{departureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
+                    <t-calendar class="flex horizontal-margin-right" id="departureDate" required selected-date="{{departureDate}}" label="Departing" name="departureDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                     <t-calendar class="flex" id="arrivalDate" hidden$="{{_isRoundTrip}}" required$="{{!_isRoundTrip}}" selected-date="{{arrivalDate}}" label="Returning" name="arrivalDate" format="mm/dd/yyyy" submit-format="mm/dd/yyyy" error-message="You missed this."></t-calendar>
                 </div>
                 <div class="row">
@@ -99,6 +81,12 @@ of this component to control the behaviour of this component.
 <script>
 Polymer({
     is: 't-air-search',
+
+    /*
+     * <p>Behaviour to validate forms and other.</p>
+     */
+    behaviors: [TravelNxt.Behaviors.FormBehavior],
+
     properties: {
 
         /**
@@ -247,9 +235,6 @@ Polymer({
             startDate.setDate(startDate.getDate() + this.bookDateDifference);
             this.$.departureDate.picker.set('min', startDate);
         });
-        this.addEventListener('on-form-submit', function(event) {
-            component.search(event.detail);
-        });
     },
 
     _tripTypeChanged: function (tripType) {
@@ -327,21 +312,7 @@ Polymer({
 
         var request = this._buildSearchRequest();
 
-        this.fire('t-air-search', request);
-    },
-
-    /*
-     * <p>validation function</p>
-    */
-    validate: function() {
-        var check = true;
-        var requiredFields = this.querySelectorAll('[required]');
-        for (var i = 0; i < requiredFields.length; i++) {
-            if (!requiredFields[i].validate()) {
-                check = false;
-            }
-        }
-        return check;
+        this.fire('t-air-search-validate', request);
     }
 });
 </script>
