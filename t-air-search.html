@@ -270,7 +270,7 @@ Polymer({
             if (this.$.DepartureAirport.selectedItem.code == this.$.ArrivalAirport.selectedItem.code) {
                 this.$.ArrivalAirport.isInvalid = true;
                 this.$.ArrivalAirport.validate();
-            } else if (this.ArrivalAirport != null) {
+            } else if (this.arrivalAirport != null) {
                 this.$.ArrivalAirport.isInvalid = false;
                 this.$.ArrivalAirport.validate();
             }
