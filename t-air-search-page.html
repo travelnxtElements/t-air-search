@@ -93,6 +93,9 @@
             id="searchView"
             autosuggest-api="{{apiBaseUrl}}api/content/autosuggest/"
             auth-token="{{authToken}}"
+            cabin-type="[[cabinType]]"
+            itinerary-type="[[itineraryType]]"
+            book-date-difference="[[bookDateDifference]]"
             on-t-air-search-validate="onSearch">
         </t-air-search>
         <t-air-search-api-decorator
@@ -124,15 +127,39 @@
                 
                 
                 properties: {
-                  productName: {
-                    type:String,
-                    value:'Flight'
-                  },
+                    productName: {
+                        type:String,
+                        value:'Flight'
+                    },
 
-                  queryParams: {
-                    type: Object,
-                    notify: true
-                  }
+                    queryParams: {
+                        type: Object,
+                        notify: true
+                    },
+
+                    /**
+                     * The type of cabin, example values are _Economy_ and _Business_
+                     */
+                    cabinType: {
+                        type: String,
+                        value: "Economy"
+                    },
+
+                    /**
+                    * Pass the minimum date difference to start booking from
+                    */
+                    bookDateDifference: {
+                        type: Number,
+                        value: 3
+                    },
+
+                    /**
+                     * The type of trip, possible values are _Round Trip_ and _One Way_
+                     */
+                    itineraryType: {
+                        type: String,
+                        value: 'RoundTrip'
+                    }
                 },
 
                 behaviors:[Polymer.SearchPageBehaviour]
